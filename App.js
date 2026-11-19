@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   Image,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -243,6 +245,21 @@ function ProductDetailScreen({ route }) {
     : [product.thumbnail].filter(Boolean);
   const reviews = product.reviews ?? [];
 
+  async function shareProduct() {
+    try {
+      await Share.share({
+        message:
+          `${productName(product)}\n\n` +
+          `${description}\n\n` +
+          `İndirimli fiyat: ${formatPrice(discountedPrice)}\n\n` +
+          `Ürün bağlantısı: https://dummyjson.com/products/${product.id}`,
+      });
+    } catch {
+      Alert.alert('Paylaşım açılamadı', 'Lütfen tekrar dene.');
+    }
+  }
+
+
   return (
     <ScrollView style={styles.detailScreen} contentContainerStyle={styles.detailContent}>
       {photos.length > 0 && (
@@ -271,6 +288,15 @@ function ProductDetailScreen({ route }) {
           {product.stock === 0 ? 'Stokta yok' : `Son ${product.stock} ürün`}
         </Text>
       )}
+
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Ürünü paylaş"
+        style={styles.saveButton}
+        onPress={shareProduct}
+      >
+        <Text style={styles.saveButtonText}>Paylaş</Text>
+      </Pressable>
 
       <Text style={styles.sectionTitle}>Ürün bilgileri</Text>
       <Text style={styles.bodyText}>{description}</Text>
@@ -396,6 +422,18 @@ const styles = StyleSheet.create({
   message: {
     textAlign: 'center',
     marginTop: 16,
+  },
+  saveButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#2457A6',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 12,
+  },
+  saveButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
   },
   detailScreen: {
     flex: 1,
